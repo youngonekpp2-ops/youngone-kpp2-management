@@ -6,6 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YOUNGONE KPP-2 MANAGEMENT</title>
 
+<!-- APP LOGO AND PWA -->
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./logo.png">
+<link rel="apple-touch-icon" href="./logo.png">
+<meta name="theme-color" content="#073b70">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YOUNGONE KPP-2">
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#edf2f7;color:#222}
@@ -124,13 +133,11 @@ header h2{font-size:17px}
 <button class="secondary small-btn" onclick="logoutToDashboard()">Dashboard</button>
 </div>
 <p id="sectionRoleText"></p>
-
 <div class="option-grid">
 <button class="option manpower" onclick="openCategory('Manpower')"><span id="manpowerLabel">MANPOWER</span></button>
 <button class="option production" onclick="openCategory('Production')"><span id="productionLabel">PRODUCTION</span></button>
 <button class="option maintenance" onclick="openCategory('Maintenance')"><span id="maintenanceLabel">MAINTENANCE</span></button>
 </div>
-
 <div class="notice-box">
 <h3 class="notice-heading">📢 NOTICE BOARD</h3>
 <div id="noticeAdminForm" class="hidden">
@@ -181,9 +188,7 @@ header h2{font-size:17px}
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
 <script>
-
 /* FIREBASE CONFIG */
-
 const firebaseConfig = {
 apiKey: "AIzaSyDowHGXxEzLmJ2o5gCY_301xVVUusLdzeQ",
 authDomain: "youngone-kpp-2.firebaseapp.com",
@@ -197,11 +202,6 @@ measurementId: "G-9TVWR0Q44H"
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-/* LOGIN ACCOUNT MAP
-   Original User ID and Password remain unchanged.
-   Firebase uses hidden email addresses internally.
-*/
 
 const accounts = {
 Sizing:{
@@ -246,37 +246,25 @@ let currentCategory="";
 let noticeUnsubscribe=null;
 let cloudNotices=[];
 
-/* OLD DATA - DO NOT DELETE */
-
 function getRecords(){
-try{
-return JSON.parse(localStorage.getItem("youngone_kpp2_records"))||[];
-}catch(e){return [];}
+try{return JSON.parse(localStorage.getItem("youngone_kpp2_records"))||[];}
+catch(e){return [];}
 }
 
-/* OLD LOCAL NOTICES ARE KEPT FOR BACKUP DISPLAY */
-
 function getOldNotices(){
-try{
-return JSON.parse(localStorage.getItem("youngone_kpp2_notices"))||[];
-}catch(e){return [];}
+try{return JSON.parse(localStorage.getItem("youngone_kpp2_notices"))||[];}
+catch(e){return [];}
 }
 
 function stopNoticeListener(){
-if(noticeUnsubscribe){
-noticeUnsubscribe();
-noticeUnsubscribe=null;
+if(noticeUnsubscribe){noticeUnsubscribe();noticeUnsubscribe=null;}
 }
-}
-
-/* PAGE CONTROL */
 
 function hideAllPages(){
 [
 "mainLoginPage","dashboard","sectionLoginPage",
 "sectionHomePage","categoryPage","reportLoginPage","reportPage"
 ].forEach(id=>document.getElementById(id).classList.add("hidden"));
-
 document.getElementById("mainHeader").classList.remove("hidden");
 document.body.style.overflow="auto";
 }
@@ -293,7 +281,6 @@ fitDashboardImage();
 function fitDashboardImage(){
 const img=document.getElementById("dashboardImage");
 const frame=document.getElementById("dashboardImageFrame");
-
 function resizeFrame(){
 if(!img.naturalWidth||!img.naturalHeight)return;
 const ratio=img.naturalWidth/img.naturalHeight;
@@ -311,12 +298,8 @@ else img.onload=resizeFrame;
 }
 
 window.addEventListener("resize",()=>{
-if(!document.getElementById("dashboard").classList.contains("hidden")){
-fitDashboardImage();
-}
+if(!document.getElementById("dashboard").classList.contains("hidden"))fitDashboardImage();
 });
-
-/* FIREBASE LOGIN HELPER */
 
 async function firebaseLogin(email,password){
 await auth.signOut();
@@ -325,47 +308,29 @@ return await auth.signInWithEmailAndPassword(email,password);
 
 function showLoginError(error){
 console.error(error);
-if(error.code==="auth/invalid-email"){
-return "Firebase Email ঠিক নেই। অ্যাকাউন্টের Email আবার পরীক্ষা করুন।";
-}
-if(error.code==="auth/user-not-found"||error.code==="auth/wrong-password"||error.code==="auth/invalid-credential"){
-return "ভুল User ID অথবা Password!";
-}
-if(error.code==="auth/too-many-requests"){
-return "অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
-}
-if(error.code==="auth/unauthorized-domain"){
-return "এই ওয়েবসাইটের ডোমেইন Firebase-এ অনুমোদিত নয়। Hosting সেটআপ করতে হবে।";
-}
-if(error.code==="auth/network-request-failed"){
-return "ইন্টারনেট সংযোগ পরীক্ষা করুন।";
-}
+if(error.code==="auth/invalid-email")return "Firebase Email ঠিক নেই। অ্যাকাউন্টের Email আবার পরীক্ষা করুন।";
+if(error.code==="auth/user-not-found"||error.code==="auth/wrong-password"||error.code==="auth/invalid-credential")return "ভুল User ID অথবা Password!";
+if(error.code==="auth/too-many-requests")return "অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+if(error.code==="auth/unauthorized-domain")return "এই ওয়েবসাইটের ডোমেইন Firebase-এ অনুমোদিত নয়।";
+if(error.code==="auth/network-request-failed")return "ইন্টারনেট সংযোগ পরীক্ষা করুন।";
 return "Login করা যায়নি। Firebase অ্যাকাউন্ট ও ইন্টারনেট পরীক্ষা করুন।";
 }
-
-/* MAIN LOGIN */
 
 async function mainLogin(){
 const user=document.getElementById("mainUser").value.trim();
 const pass=document.getElementById("mainPass").value;
 const msg=document.getElementById("mainMessage");
 msg.innerText="লগইন হচ্ছে...";
-
 if(user!=="Youngone"||pass!=="Youngone"){
 msg.innerText="Wrong User ID or Password!";
 return;
 }
-
 try{
 await firebaseLogin("main@youngone-kpp-2.invalid","Youngone");
 msg.innerText="";
 showDashboard();
-}catch(error){
-msg.innerText=showLoginError(error);
+}catch(error){msg.innerText=showLoginError(error);}
 }
-}
-
-/* SECTION LOGIN */
 
 function openSection(section){
 selectedSection=section;
@@ -382,7 +347,6 @@ const user=document.getElementById("sectionUser").value.trim();
 const pass=document.getElementById("sectionPass").value;
 const account=accounts[selectedSection];
 const msg=document.getElementById("sectionMessage");
-
 let email="";
 if(user===account.user&&pass===account.pass){
 email=account.email;
@@ -394,38 +358,28 @@ currentRole="Admin";
 msg.innerText="Wrong User ID or Password!";
 return;
 }
-
 msg.innerText="লগইন হচ্ছে...";
-
 try{
 await firebaseLogin(email,pass);
 currentSection=selectedSection;
 msg.innerText="";
 openSectionHome();
-}catch(error){
-msg.innerText=showLoginError(error);
+}catch(error){msg.innerText=showLoginError(error);}
 }
-}
-
-/* SECTION HOME */
 
 function openSectionHome(){
 stopNoticeListener();
 hideAllPages();
 document.getElementById("sectionHomePage").classList.remove("hidden");
-
 document.getElementById("sectionHomeTitle").innerText=currentSection.toUpperCase()+" SECTION";
 document.getElementById("sectionRoleText").innerText="Login Type: "+currentRole;
 document.getElementById("manpowerLabel").innerText=currentSection.toUpperCase()+" MANPOWER";
 document.getElementById("productionLabel").innerText=currentSection.toUpperCase()+" PRODUCTION";
 document.getElementById("maintenanceLabel").innerText=currentSection.toUpperCase()+" MAINTENANCE";
-
 document.getElementById("noticeAdminForm").classList.toggle("hidden",currentRole!=="Admin");
 document.getElementById("noticeText").value="";
 listenNotices();
 }
-
-/* EMPTY CATEGORY PAGE */
 
 function openCategory(category){
 currentCategory=category;
@@ -434,24 +388,17 @@ document.getElementById("categoryPage").classList.remove("hidden");
 document.getElementById("categoryHeading").innerText=currentSection.toUpperCase()+" "+category.toUpperCase();
 }
 
-function backToSectionHome(){
-openSectionHome();
-}
-
-/* FIRESTORE NOTICE BOARD */
+function backToSectionHome(){openSectionHome();}
 
 function listenNotices(){
 stopNoticeListener();
 const list=document.getElementById("noticeList");
 list.innerHTML="<p>নোটিশ লোড হচ্ছে...</p>";
-
 noticeUnsubscribe=db.collection("notices")
 .where("section","==",currentSection)
 .onSnapshot(snapshot=>{
 cloudNotices=[];
-snapshot.forEach(doc=>{
-cloudNotices.push({id:doc.id,...doc.data()});
-});
+snapshot.forEach(doc=>cloudNotices.push({id:doc.id,...doc.data()}));
 renderNotices();
 },error=>{
 console.error(error);
@@ -460,17 +407,9 @@ list.innerHTML="<p class='message'>নোটিশ লোড করা যায
 }
 
 async function addNotice(){
-if(currentRole!=="Admin"){
-alert("Only Admin can publish notices.");
-return;
-}
-
+if(currentRole!=="Admin"){alert("Only Admin can publish notices.");return;}
 const text=document.getElementById("noticeText").value.trim();
-if(!text){
-alert("Please write a notice.");
-return;
-}
-
+if(!text){alert("Please write a notice.");return;}
 try{
 await db.collection("notices").add({
 section:currentSection,
@@ -492,89 +431,55 @@ const combined=[
 ...cloudNotices.map(n=>({...n,isOld:false})),
 ...oldNotices.map(n=>({...n,isOld:true}))
 ];
-
-combined.sort((a,b)=>{
-const da=String(a.date||"");
-const dbb=String(b.date||"");
-return dbb.localeCompare(da);
-});
-
+combined.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
 const list=document.getElementById("noticeList");
 list.innerHTML="";
-
-if(combined.length===0){
-list.innerHTML="<p>No Notice Available.</p>";
-return;
-}
-
+if(combined.length===0){list.innerHTML="<p>No Notice Available.</p>";return;}
 combined.forEach(notice=>{
 const item=document.createElement("div");
 item.className="notice-item";
-
 const text=document.createElement("div");
 text.textContent=notice.text||notice.message||"";
-
 const date=document.createElement("div");
 date.className="notice-date";
 date.textContent=notice.date||"";
-
 item.append(text,date);
-
 if(currentRole==="Admin"&&!notice.isOld){
 const edit=document.createElement("button");
 edit.className="small-btn";
 edit.textContent="Edit";
 edit.onclick=()=>editNotice(notice.id);
-
 const del=document.createElement("button");
 del.className="small-btn danger";
 del.textContent="Delete";
 del.onclick=()=>deleteNotice(notice.id);
-
 item.append(edit,del);
 }
-
 list.appendChild(item);
 });
 }
 
 async function editNotice(id){
 if(currentRole!=="Admin")return;
-
 const notice=cloudNotices.find(n=>n.id===id);
 if(!notice)return;
-
 const updated=prompt("Edit Notice:",notice.text);
 if(updated===null)return;
-if(!updated.trim()){
-alert("Notice cannot be empty.");
-return;
-}
-
+if(!updated.trim()){alert("Notice cannot be empty.");return;}
 try{
 await db.collection("notices").doc(id).update({
 text:updated.trim(),
 date:new Date().toLocaleString()
 });
-}catch(error){
-console.error(error);
-alert("নোটিশ সম্পাদনা করা যায়নি।");
-}
+}catch(error){console.error(error);alert("নোটিশ সম্পাদনা করা যায়নি।");}
 }
 
 async function deleteNotice(id){
 if(currentRole!=="Admin")return;
 if(!confirm("Delete this notice?"))return;
-
-try{
-await db.collection("notices").doc(id).delete();
-}catch(error){
-console.error(error);
-alert("নোটিশ মুছে ফেলা যায়নি।");
+try{await db.collection("notices").doc(id).delete();}
+catch(error){console.error(error);alert("নোটিশ মুছে ফেলা যায়নি।");}
 }
-}
-
-/* REPORT LOGIN */
 
 function openReportLogin(){
 hideAllPages();
@@ -588,43 +493,30 @@ async function reportLogin(){
 const user=document.getElementById("reportUser").value.trim();
 const pass=document.getElementById("reportPass").value;
 const msg=document.getElementById("reportMessage");
-
 if(user!=="Report"||pass!=="Report@123"){
 msg.innerText="Wrong User ID or Password!";
 return;
 }
-
 msg.innerText="লগইন হচ্ছে...";
-
 try{
 await firebaseLogin("report@youngone-kpp-2.invalid","Report@123");
 msg.innerText="";
 await showAllReports();
-}catch(error){
-msg.innerText=showLoginError(error);
+}catch(error){msg.innerText=showLoginError(error);}
 }
-}
-
-/* ALL REPORTS */
 
 async function showAllReports(){
 hideAllPages();
 document.getElementById("reportPage").classList.remove("hidden");
-
 const container=document.getElementById("allReports");
 container.innerHTML="<p>রিপোর্ট লোড হচ্ছে...</p>";
-
 try{
 const snapshot=await db.collection("notices").get();
 const cloudReportNotices=[];
-snapshot.forEach(doc=>{
-cloudReportNotices.push({id:doc.id,...doc.data()});
-});
-
+snapshot.forEach(doc=>cloudReportNotices.push({id:doc.id,...doc.data()}));
 const oldNotices=getOldNotices();
 const notices=[...cloudReportNotices,...oldNotices];
 renderAllReports(container,getRecords(),notices);
-
 }catch(error){
 console.error(error);
 container.innerHTML="<p class='message'>রিপোর্ট লোড করা যায়নি। ইন্টারনেট ও Firebase Rules পরীক্ষা করুন।</p>";
@@ -633,18 +525,15 @@ container.innerHTML="<p class='message'>রিপোর্ট লোড কর�
 
 function renderAllReports(container,records,notices){
 container.innerHTML="";
-
 sections.forEach(section=>{
 categories.forEach(category=>{
 const title=document.createElement("h3");
 title.className="report-title";
 title.textContent=section.toUpperCase()+" "+category.toUpperCase()+" REPORT";
 container.appendChild(title);
-
 const selected=records.filter(r=>r.section===section&&r.category===category);
 addReportTable(container,selected);
 });
-
 const oldRecords=records.filter(r=>r.section===section&&!r.category);
 if(oldRecords.length){
 const oldTitle=document.createElement("h3");
@@ -653,14 +542,11 @@ oldTitle.textContent=section+" PREVIOUS RECORDS";
 container.appendChild(oldTitle);
 addReportTable(container,oldRecords);
 }
-
 const noticeTitle=document.createElement("h3");
 noticeTitle.className="report-title";
 noticeTitle.textContent=section.toUpperCase()+" NOTICE BOARD";
 container.appendChild(noticeTitle);
-
 const sectionNotices=notices.filter(n=>n.section===section);
-
 if(sectionNotices.length===0){
 const p=document.createElement("p");
 p.textContent="No Notice Available.";
@@ -681,23 +567,18 @@ function addReportTable(container,selected){
 const wrapper=document.createElement("div");
 wrapper.className="table-wrap";
 const table=document.createElement("table");
-
 table.innerHTML=`
 <thead><tr>
 <th>Date</th><th>Machine No.</th><th>Item / Description</th>
 <th>Quantity</th><th>Remarks</th>
 </tr></thead><tbody></tbody>`;
-
 const tbody=table.querySelector("tbody");
-
 if(selected.length===0){
 tbody.innerHTML='<tr><td colspan="5">No Data Found</td></tr>';
 }else{
 selected.slice().reverse().forEach(record=>{
 const tr=document.createElement("tr");
-[
-record.date,record.machine,record.item,record.quantity,record.remarks
-].forEach(value=>{
+[record.date,record.machine,record.item,record.quantity,record.remarks].forEach(value=>{
 const td=document.createElement("td");
 td.textContent=value??"";
 tr.appendChild(td);
@@ -705,12 +586,9 @@ tr.appendChild(td);
 tbody.appendChild(tr);
 });
 }
-
 wrapper.appendChild(table);
 container.appendChild(wrapper);
 }
-
-/* LOGOUT */
 
 async function logoutToDashboard(){
 stopNoticeListener();
@@ -718,29 +596,24 @@ currentSection="";
 currentRole="";
 currentCategory="";
 cloudNotices=[];
-
-try{
-await auth.signOut();
-}catch(error){
-console.error(error);
-}
+try{await auth.signOut();}catch(error){console.error(error);}
 showDashboard();
 }
-
-/* HTML TEXT SAFETY */
-
-function escapeHTML(value){
-return String(value??"").replace(/[&<>"']/g,char=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-}[char]));
-}
-
-/* IMAGE ERROR */
 
 document.getElementById("dashboardImage").onerror=function(){
 alert("Dashboard image পাওয়া যাচ্ছে না। HTML ফাইলের একই ফোল্ডারে youngone_kpp2_webpage.png ছবিটি রাখুন।");
 };
 
+/* PWA SERVICE WORKER REGISTRATION
+   sw.js ফাইল তৈরি ও আপলোড না করা পর্যন্ত এটি চালু হবে না।
+*/
+if("serviceWorker" in navigator){
+window.addEventListener("load",()=>{
+navigator.serviceWorker.register("./sw.js").catch(error=>{
+console.log("Service Worker registration failed:",error);
+});
+});
+}
 </script>
 </body>
 </html>
