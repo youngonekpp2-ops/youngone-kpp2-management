@@ -1,0 +1,18 @@
+
+{
+  "name": "YOUNGONE KPP-2 MANAGEMENT",
+  "short_name": "YOUNGONE KPP-2",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#edf2f7",
+  "theme_color": "#123b70",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
