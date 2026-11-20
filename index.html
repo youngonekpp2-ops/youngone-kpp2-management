@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -37,11 +36,56 @@ label{font-weight:bold;font-size:14px}
 .message{color:#c62828;font-size:14px}
 .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:15px}
 .topbar h2,.topbar h3{margin:0}
-.option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:20px 0}
-.option{min-height:105px;display:flex;align-items:center;justify-content:center;text-align:center;padding:15px;font-weight:bold;font-size:17px;border-radius:10px;box-shadow:0 3px 8px #0002}
-.manpower{background:#1769aa}
-.production{background:#16834a}
-.maintenance{background:#c47a16}
+
+/* UPDATED 3 BUTTONS WITH PICTURES */
+.option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0}
+.option{
+  position:relative;
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:15px;
+  font-weight:bold;
+  font-size:16px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.25);
+  background-size:cover;
+  background-position:center;
+  overflow:hidden;
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  text-shadow:0 2px 5px rgba(0,0,0,0.9);
+  letter-spacing:0.5px;
+}
+.option:hover{
+  transform:translateY(-3px);
+  box-shadow:0 6px 16px rgba(0,0,0,0.35);
+}
+.option-icon{
+  width:52px;
+  height:52px;
+  object-fit:contain;
+  margin-bottom:10px;
+  background:rgba(255,255,255,0.92);
+  padding:8px;
+  border-radius:50%;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.manpower{
+  background-color:#1769aa;
+  background-image:linear-gradient(rgba(13, 62, 107, 0.72), rgba(13, 62, 107, 0.85)), url('https://unsplash.com');
+}
+.production{
+  background-color:#16834a;
+  background-image:linear-gradient(rgba(12, 82, 45, 0.72), rgba(12, 82, 45, 0.85)), url('https://unsplash.com');
+}
+.maintenance{
+  background-color:#c47a16;
+  background-image:linear-gradient(rgba(130, 75, 10, 0.72), rgba(130, 75, 10, 0.85)), url('https://unsplash.com');
+}
+
 .notice-box{border:1px solid #ddd;border-radius:9px;padding:15px;margin-top:20px;background:#fffdf5}
 .notice-heading{background:#073b70;color:white;padding:12px;border-radius:6px;margin:0 0 12px}
 .notice-item{border-bottom:1px solid #ddd;padding:12px 4px;overflow-wrap:anywhere}
@@ -67,12 +111,13 @@ th{background:#0756a5;color:white}
 #menuDyer{left:2%;top:37.5%;width:16%;height:5%}
 #menuInspection{left:2%;top:43%;width:16%;height:5%}
 #menuReport{left:2%;top:50.5%;width:16%;height:6%}
-@media(max-width:600px){
+@media(max-width:650px){
 .page{margin:10px auto;padding:9px}
 .card{padding:15px}
 header h2{font-size:17px}
 .option-grid{grid-template-columns:1fr}
-.option{min-height:75px}
+.option{min-height:115px;flex-direction:row;gap:15px;justify-content:flex-start;padding:15px 20px;text-align:left}
+.option-icon{margin-bottom:0;width:48px;height:48px}
 }
 </style>
 </head>
@@ -133,11 +178,23 @@ header h2{font-size:17px}
 <button class="secondary small-btn" onclick="logoutToDashboard()">Dashboard</button>
 </div>
 <p id="sectionRoleText"></p>
+
+<!-- 3 BUTTONS WITH PICTURES & ICONS -->
 <div class="option-grid">
-<button class="option manpower" onclick="openCategory('Manpower')"><span id="manpowerLabel">MANPOWER</span></button>
-<button class="option production" onclick="openCategory('Production')"><span id="productionLabel">PRODUCTION</span></button>
-<button class="option maintenance" onclick="openCategory('Maintenance')"><span id="maintenanceLabel">MAINTENANCE</span></button>
+<button class="option manpower" onclick="openCategory('Manpower')">
+  <img class="option-icon" src="https://flaticon.com" alt="Manpower">
+  <span id="manpowerLabel">MANPOWER</span>
+</button>
+<button class="option production" onclick="openCategory('Production')">
+  <img class="option-icon" src="https://flaticon.com" alt="Production">
+  <span id="productionLabel">PRODUCTION</span>
+</button>
+<button class="option maintenance" onclick="openCategory('Maintenance')">
+  <img class="option-icon" src="https://flaticon.com" alt="Maintenance">
+  <span id="maintenanceLabel">MAINTENANCE</span>
+</button>
 </div>
+
 <div class="notice-box">
 <h3 class="notice-heading">📢 NOTICE BOARD</h3>
 <div id="noticeAdminForm" class="hidden">
@@ -183,437 +240,5 @@ header h2{font-size:17px}
 </div>
 
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-
-<script>
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-apiKey: "AIzaSyDowHGXxEzLmJ2o5gCY_301xVVUusLdzeQ",
-authDomain: "youngone-kpp-2.firebaseapp.com",
-projectId: "youngone-kpp-2",
-storageBucket: "youngone-kpp-2.firebasestorage.app",
-messagingSenderId: "474319199827",
-appId: "1:474319199827:web:d879dde2ee541ab63030a6",
-measurementId: "G-9TVWR0Q44H"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-const accounts = {
-Sizing:{
-user:"Sizing",pass:"Size@123",
-email:"sizing@youngone-kpp-2.invalid",
-adminUser:"SizingAdmin",adminPass:"SizeAdmin@123",
-adminEmail:"sizingadmin@youngone-kpp-2.invalid"
-},
-Drawing:{
-user:"Drawing",pass:"Draw@123",
-email:"drawing@youngone-kpp-2.invalid",
-adminUser:"DrawingAdmin",adminPass:"DrawAdmin@123",
-adminEmail:"drawingadmin@youngone-kpp-2.invalid"
-},
-Weaving:{
-user:"Weaving",pass:"Weave@123",
-email:"weaving@youngone-kpp-2.invalid",
-adminUser:"WeavingAdmin",adminPass:"WeaveAdmin@123",
-adminEmail:"weavingadmin@youngone-kpp-2.invalid"
-},
-Dyer:{
-user:"Dyer",pass:"Dye@123",
-email:"dyer@youngone-kpp-2.invalid",
-adminUser:"DyerAdmin",adminPass:"DyeAdmin@123",
-adminEmail:"dyeradmin@youngone-kpp-2.invalid"
-},
-Inspection:{
-user:"Inspection",pass:"Inspect@123",
-email:"inspection@youngone-kpp-2.invalid",
-adminUser:"InspectionAdmin",adminPass:"InspectAdmin@123",
-adminEmail:"inspectionadmin@youngone-kpp-2.invalid"
-}
-};
-
-const sections=["Sizing","Drawing","Weaving","Dyer","Inspection"];
-const categories=["Manpower","Production","Maintenance"];
-
-let selectedSection="";
-let currentSection="";
-let currentRole="";
-let currentCategory="";
-let noticeUnsubscribe=null;
-let cloudNotices=[];
-
-function getRecords(){
-try{return JSON.parse(localStorage.getItem("youngone_kpp2_records"))||[];}
-catch(e){return [];}
-}
-
-function getOldNotices(){
-try{return JSON.parse(localStorage.getItem("youngone_kpp2_notices"))||[];}
-catch(e){return [];}
-}
-
-function stopNoticeListener(){
-if(noticeUnsubscribe){noticeUnsubscribe();noticeUnsubscribe=null;}
-}
-
-function hideAllPages(){
-[
-"mainLoginPage","dashboard","sectionLoginPage",
-"sectionHomePage","categoryPage","reportLoginPage","reportPage"
-].forEach(id=>document.getElementById(id).classList.add("hidden"));
-document.getElementById("mainHeader").classList.remove("hidden");
-document.body.style.overflow="auto";
-}
-
-function showDashboard(){
-stopNoticeListener();
-hideAllPages();
-document.getElementById("dashboard").classList.remove("hidden");
-document.getElementById("mainHeader").classList.add("hidden");
-document.body.style.overflow="hidden";
-fitDashboardImage();
-}
-
-function fitDashboardImage(){
-const img=document.getElementById("dashboardImage");
-const frame=document.getElementById("dashboardImageFrame");
-function resizeFrame(){
-if(!img.naturalWidth||!img.naturalHeight)return;
-const ratio=img.naturalWidth/img.naturalHeight;
-const sw=window.innerWidth;
-const sh=window.innerHeight;
-let width=sw;
-let height=width/ratio;
-if(height>sh){height=sh;width=height*ratio;}
-frame.style.width=width+"px";
-frame.style.height=height+"px";
-frame.style.aspectRatio=ratio;
-}
-if(img.complete)resizeFrame();
-else img.onload=resizeFrame;
-}
-
-window.addEventListener("resize",()=>{
-if(!document.getElementById("dashboard").classList.contains("hidden"))fitDashboardImage();
-});
-
-async function firebaseLogin(email,password){
-await auth.signOut();
-return await auth.signInWithEmailAndPassword(email,password);
-}
-
-function showLoginError(error){
-console.error(error);
-if(error.code==="auth/invalid-email")return "Firebase Email ঠিক নেই। অ্যাকাউন্টের Email আবার পরীক্ষা করুন।";
-if(error.code==="auth/user-not-found"||error.code==="auth/wrong-password"||error.code==="auth/invalid-credential")return "ভুল User ID অথবা Password!";
-if(error.code==="auth/too-many-requests")return "অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
-if(error.code==="auth/unauthorized-domain")return "এই ওয়েবসাইটের ডোমেইন Firebase-এ অনুমোদিত নয়।";
-if(error.code==="auth/network-request-failed")return "ইন্টারনেট সংযোগ পরীক্ষা করুন।";
-return "Login করা যায়নি। Firebase অ্যাকাউন্ট ও ইন্টারনেট পরীক্ষা করুন।";
-}
-
-async function mainLogin(){
-const user=document.getElementById("mainUser").value.trim();
-const pass=document.getElementById("mainPass").value;
-const msg=document.getElementById("mainMessage");
-msg.innerText="লগইন হচ্ছে...";
-if(user!=="Youngone"||pass!=="Youngone"){
-msg.innerText="Wrong User ID or Password!";
-return;
-}
-try{
-await firebaseLogin("main@youngone-kpp-2.invalid","Youngone");
-msg.innerText="";
-showDashboard();
-}catch(error){msg.innerText=showLoginError(error);}
-}
-
-function openSection(section){
-selectedSection=section;
-hideAllPages();
-document.getElementById("sectionLoginPage").classList.remove("hidden");
-document.getElementById("sectionLoginTitle").innerText=section+" Section Login";
-document.getElementById("sectionUser").value="";
-document.getElementById("sectionPass").value="";
-document.getElementById("sectionMessage").innerText="";
-}
-
-async function sectionLogin(){
-const user=document.getElementById("sectionUser").value.trim();
-const pass=document.getElementById("sectionPass").value;
-const account=accounts[selectedSection];
-const msg=document.getElementById("sectionMessage");
-let email="";
-if(user===account.user&&pass===account.pass){
-email=account.email;
-currentRole="Data Entry";
-}else if(user===account.adminUser&&pass===account.adminPass){
-email=account.adminEmail;
-currentRole="Admin";
-}else{
-msg.innerText="Wrong User ID or Password!";
-return;
-}
-msg.innerText="লগইন হচ্ছে...";
-try{
-await firebaseLogin(email,pass);
-currentSection=selectedSection;
-msg.innerText="";
-openSectionHome();
-}catch(error){msg.innerText=showLoginError(error);}
-}
-
-function openSectionHome(){
-stopNoticeListener();
-hideAllPages();
-document.getElementById("sectionHomePage").classList.remove("hidden");
-document.getElementById("sectionHomeTitle").innerText=currentSection.toUpperCase()+" SECTION";
-document.getElementById("sectionRoleText").innerText="Login Type: "+currentRole;
-document.getElementById("manpowerLabel").innerText=currentSection.toUpperCase()+" MANPOWER";
-document.getElementById("productionLabel").innerText=currentSection.toUpperCase()+" PRODUCTION";
-document.getElementById("maintenanceLabel").innerText=currentSection.toUpperCase()+" MAINTENANCE";
-document.getElementById("noticeAdminForm").classList.toggle("hidden",currentRole!=="Admin");
-document.getElementById("noticeText").value="";
-listenNotices();
-}
-
-function openCategory(category){
-currentCategory=category;
-hideAllPages();
-document.getElementById("categoryPage").classList.remove("hidden");
-document.getElementById("categoryHeading").innerText=currentSection.toUpperCase()+" "+category.toUpperCase();
-}
-
-function backToSectionHome(){openSectionHome();}
-
-function listenNotices(){
-stopNoticeListener();
-const list=document.getElementById("noticeList");
-list.innerHTML="<p>নোটিশ লোড হচ্ছে...</p>";
-noticeUnsubscribe=db.collection("notices")
-.where("section","==",currentSection)
-.onSnapshot(snapshot=>{
-cloudNotices=[];
-snapshot.forEach(doc=>cloudNotices.push({id:doc.id,...doc.data()}));
-renderNotices();
-},error=>{
-console.error(error);
-list.innerHTML="<p class='message'>নোটিশ লোড করা যায়নি। Firebase Rules পরীক্ষা করুন।</p>";
-});
-}
-
-async function addNotice(){
-if(currentRole!=="Admin"){alert("Only Admin can publish notices.");return;}
-const text=document.getElementById("noticeText").value.trim();
-if(!text){alert("Please write a notice.");return;}
-try{
-await db.collection("notices").add({
-section:currentSection,
-text:text,
-date:new Date().toLocaleString(),
-createdAt:firebase.firestore.FieldValue.serverTimestamp()
-});
-document.getElementById("noticeText").value="";
-alert("Notice Published!");
-}catch(error){
-console.error(error);
-alert("নোটিশ প্রকাশ করা যায়নি। Admin অনুমতি ও ইন্টারনেট পরীক্ষা করুন।");
-}
-}
-
-function renderNotices(){
-const oldNotices=getOldNotices().filter(n=>n.section===currentSection);
-const combined=[
-...cloudNotices.map(n=>({...n,isOld:false})),
-...oldNotices.map(n=>({...n,isOld:true}))
-];
-combined.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
-const list=document.getElementById("noticeList");
-list.innerHTML="";
-if(combined.length===0){list.innerHTML="<p>No Notice Available.</p>";return;}
-combined.forEach(notice=>{
-const item=document.createElement("div");
-item.className="notice-item";
-const text=document.createElement("div");
-text.textContent=notice.text||notice.message||"";
-const date=document.createElement("div");
-date.className="notice-date";
-date.textContent=notice.date||"";
-item.append(text,date);
-if(currentRole==="Admin"&&!notice.isOld){
-const edit=document.createElement("button");
-edit.className="small-btn";
-edit.textContent="Edit";
-edit.onclick=()=>editNotice(notice.id);
-const del=document.createElement("button");
-del.className="small-btn danger";
-del.textContent="Delete";
-del.onclick=()=>deleteNotice(notice.id);
-item.append(edit,del);
-}
-list.appendChild(item);
-});
-}
-
-async function editNotice(id){
-if(currentRole!=="Admin")return;
-const notice=cloudNotices.find(n=>n.id===id);
-if(!notice)return;
-const updated=prompt("Edit Notice:",notice.text);
-if(updated===null)return;
-if(!updated.trim()){alert("Notice cannot be empty.");return;}
-try{
-await db.collection("notices").doc(id).update({
-text:updated.trim(),
-date:new Date().toLocaleString()
-});
-}catch(error){console.error(error);alert("নোটিশ সম্পাদনা করা যায়নি।");}
-}
-
-async function deleteNotice(id){
-if(currentRole!=="Admin")return;
-if(!confirm("Delete this notice?"))return;
-try{await db.collection("notices").doc(id).delete();}
-catch(error){console.error(error);alert("নোটিশ মুছে ফেলা যায়নি।");}
-}
-
-function openReportLogin(){
-hideAllPages();
-document.getElementById("reportLoginPage").classList.remove("hidden");
-document.getElementById("reportUser").value="";
-document.getElementById("reportPass").value="";
-document.getElementById("reportMessage").innerText="";
-}
-
-async function reportLogin(){
-const user=document.getElementById("reportUser").value.trim();
-const pass=document.getElementById("reportPass").value;
-const msg=document.getElementById("reportMessage");
-if(user!=="Report"||pass!=="Report@123"){
-msg.innerText="Wrong User ID or Password!";
-return;
-}
-msg.innerText="লগইন হচ্ছে...";
-try{
-await firebaseLogin("report@youngone-kpp-2.invalid","Report@123");
-msg.innerText="";
-await showAllReports();
-}catch(error){msg.innerText=showLoginError(error);}
-}
-
-async function showAllReports(){
-hideAllPages();
-document.getElementById("reportPage").classList.remove("hidden");
-const container=document.getElementById("allReports");
-container.innerHTML="<p>রিপোর্ট লোড হচ্ছে...</p>";
-try{
-const snapshot=await db.collection("notices").get();
-const cloudReportNotices=[];
-snapshot.forEach(doc=>cloudReportNotices.push({id:doc.id,...doc.data()}));
-const oldNotices=getOldNotices();
-const notices=[...cloudReportNotices,...oldNotices];
-renderAllReports(container,getRecords(),notices);
-}catch(error){
-console.error(error);
-container.innerHTML="<p class='message'>রিপোর্ট লোড করা যায়নি। ইন্টারনেট ও Firebase Rules পরীক্ষা করুন।</p>";
-}
-}
-
-function renderAllReports(container,records,notices){
-container.innerHTML="";
-sections.forEach(section=>{
-categories.forEach(category=>{
-const title=document.createElement("h3");
-title.className="report-title";
-title.textContent=section.toUpperCase()+" "+category.toUpperCase()+" REPORT";
-container.appendChild(title);
-const selected=records.filter(r=>r.section===section&&r.category===category);
-addReportTable(container,selected);
-});
-const oldRecords=records.filter(r=>r.section===section&&!r.category);
-if(oldRecords.length){
-const oldTitle=document.createElement("h3");
-oldTitle.className="old-title";
-oldTitle.textContent=section+" PREVIOUS RECORDS";
-container.appendChild(oldTitle);
-addReportTable(container,oldRecords);
-}
-const noticeTitle=document.createElement("h3");
-noticeTitle.className="report-title";
-noticeTitle.textContent=section.toUpperCase()+" NOTICE BOARD";
-container.appendChild(noticeTitle);
-const sectionNotices=notices.filter(n=>n.section===section);
-if(sectionNotices.length===0){
-const p=document.createElement("p");
-p.textContent="No Notice Available.";
-container.appendChild(p);
-}else{
-sectionNotices.slice().reverse().forEach(n=>{
-const p=document.createElement("p");
-p.style.padding="10px";
-p.style.borderBottom="1px solid #ddd";
-p.textContent=(n.text||n.message||"")+" — "+(n.date||"");
-container.appendChild(p);
-});
-}
-});
-}
-
-function addReportTable(container,selected){
-const wrapper=document.createElement("div");
-wrapper.className="table-wrap";
-const table=document.createElement("table");
-table.innerHTML=`
-<thead><tr>
-<th>Date</th><th>Machine No.</th><th>Item / Description</th>
-<th>Quantity</th><th>Remarks</th>
-</tr></thead><tbody></tbody>`;
-const tbody=table.querySelector("tbody");
-if(selected.length===0){
-tbody.innerHTML='<tr><td colspan="5">No Data Found</td></tr>';
-}else{
-selected.slice().reverse().forEach(record=>{
-const tr=document.createElement("tr");
-[record.date,record.machine,record.item,record.quantity,record.remarks].forEach(value=>{
-const td=document.createElement("td");
-td.textContent=value??"";
-tr.appendChild(td);
-});
-tbody.appendChild(tr);
-});
-}
-wrapper.appendChild(table);
-container.appendChild(wrapper);
-}
-
-async function logoutToDashboard(){
-stopNoticeListener();
-currentSection="";
-currentRole="";
-currentCategory="";
-cloudNotices=[];
-try{await auth.signOut();}catch(error){console.error(error);}
-showDashboard();
-}
-
-document.getElementById("dashboardImage").onerror=function(){
-alert("Dashboard image পাওয়া যাচ্ছে না। HTML ফাইলের একই ফোল্ডারে youngone_kpp2_webpage.png ছবিটি রাখুন।");
-};
-
-/* PWA SERVICE WORKER REGISTRATION
-   sw.js ফাইল তৈরি ও আপলোড না করা পর্যন্ত এটি চালু হবে না।
-*/
-if("serviceWorker" in navigator){
-window.addEventListener("load",()=>{
-navigator.serviceWorker.register("./sw.js").catch(error=>{
-console.log("Service Worker registration failed:",error);
-});
-});
-}
-</script>
-</body>
-</html>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
