@@ -69,6 +69,7 @@ th{background:#0756a5;color:white}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
 .form-grid .full{grid-column:1/-1}
 .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.manpower-summary{min-width:0}.manpower-summary>span{display:block;font-size:14px;font-weight:600}.manpower-summary>strong{display:block;font-size:25px;margin:4px 0 8px}.shift-summary-list{border-top:1px solid #dce3eb;padding-top:5px;text-align:left}.shift-summary-list div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:12px}.shift-summary-list b{font-weight:700}
 .summary{background:#edf4fb;border-radius:9px;padding:14px;text-align:center}
 .summary strong{display:block;font-size:24px;color:#073b70;margin-top:5px}
 .module-title{margin:0 0 5px;color:#073b70}
@@ -125,7 +126,7 @@ th{background:#0756a5;color:white}
 
 <div id="sectionHomePage" class="page hidden">
  <div class="card">
-  <div class="topbar"><h2 id="sectionHomeTitle">SECTION</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary small-btn" onclick="logoutSectionUser()">লগ আউট</button><button class="secondary small-btn" onclick="logoutToDashboard()">ড্যাশবোর্ড</button></div></div>
+  <div class="topbar"><h2 id="sectionHomeTitle">SECTION</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary small-btn" onclick="logoutSectionUser()">লগ আউট</button></div></div>
   <p id="sectionRoleText"></p>
   <div class="option-grid">
    <button class="option manpower" onclick="openCategory('Manpower')"><span id="manpowerLabel">MANPOWER</span></button>
@@ -142,7 +143,7 @@ th{background:#0756a5;color:white}
 
 <div id="categoryPage" class="page hidden">
  <div class="card">
-  <div class="topbar"><h2 id="categoryHeading"></h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary small-btn" onclick="logoutSectionUser()">লগ আউট</button><button class="secondary small-btn" onclick="logoutToDashboard()">ড্যাশবোর্ড</button></div></div>
+  <div class="topbar"><h2 id="categoryHeading"></h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary small-btn" onclick="logoutSectionUser()">লগ আউট</button></div></div>
   <div id="categoryContent"></div>
  </div>
 </div>
@@ -177,6 +178,10 @@ const accounts={
  Inspection:{user:"Inspection",pass:"Inspect@123",email:"inspection@youngone-kpp-2.invalid",adminUser:"InspectionAdmin",adminPass:"InspectAdmin@123",adminEmail:"inspectionadmin@youngone-kpp-2.invalid"}
 };
 const sections=["Sizing","Drawing","Weaving","Dyer","Inspection"],categories=["Manpower","Production","Maintenance"];
+const sectionShifts={Sizing:["A","B","C"],Drawing:["A","B"],Weaving:["A1","A2","B","C"],Dyer:["A","B"],Inspection:["A","B"]};
+function shiftOptions(selected=""){
+ return `<option value="">শিফট নির্বাচন করুন</option>`+sectionShifts[currentSection].map(x=>`<option value="${x}" ${selected===x?"selected":""}>${x}</option>`).join("");
+}
 let selectedSection="",currentSection="",currentRole="",currentCategory="",noticeUnsubscribe=null,cloudNotices=[];
 
 function getRecords(){try{return JSON.parse(localStorage.getItem("youngone_kpp2_records"))||[];}catch(e){return[];}}
@@ -280,8 +285,12 @@ function renderManpowerModule(){
  const records=getRecords().filter(r=>r.section===currentSection&&r.category==="Manpower");
  const today=localDateISO(),todayRecords=records.filter(r=>r.date===today),present=todayRecords.filter(r=>r.status==="উপস্থিত").length,absent=todayRecords.filter(r=>r.status==="অনুপস্থিত").length,isAdmin=currentRole==="Admin";
  root.innerHTML=`
- <h3 class="module-title">MANPOWER ATTENDANCE</h3><p class="module-subtitle">ID Card দিয়ে কর্মচারীর তথ্য খুঁজে হাজিরা জমা দিন</p>
- <div class="summary-grid"><div class="summary">মোট কর্মী<strong>${employees.length}</strong></div><div class="summary">উপস্থিত (আজ)<strong>${present}</strong></div><div class="summary">অনুপস্থিত (আজ)<strong>${absent}</strong></div></div>
+ <div class="card manpower-shift-summary" style="margin:12px 0;padding:14px;border:1px solid #d5dce5;border-radius:10px">
+  <div class="manpower-shift-summary-head" style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:8px;padding:10px 8px;background:#073b70;color:#fff;border-radius:7px;font-weight:700;text-align:center">
+   <span>শিফট</span><span>উপস্থিত</span><span>অনুপস্থিত</span><span>মোট</span>
+  </div>
+  <div id="manpowerShiftSummaryRows"></div>
+ </div>
  ${isAdmin?`<div class="card" style="margin:12px 0"><h3>নতুন কর্মচারী যোগ করুন (শুধু Admin)</h3>
  <form class="form-grid" onsubmit="saveEmployee(event)">
  <div><label>আইডি নাম্বার</label><input id="empId" required placeholder="যেমন: 1001"></div>
@@ -289,6 +298,7 @@ function renderManpowerModule(){
  <div><label>পদবী</label><input id="empDesignation" required placeholder="পদবী লিখুন"></div>
  <div><label>বিভাগ</label><input id="empDepartment" required placeholder="বিভাগ লিখুন"></div>
  <div><label>যোগদানের তারিখ</label><input id="empJoiningDate" type="date" required></div>
+ <div><label>শিফট</label><select id="empShift" required>${shiftOptions()}</select></div>
  <div class="full"><button class="primary success" type="submit">কর্মচারী সংরক্ষণ করুন</button></div></form></div>`:""}
  <div class="card" style="margin:12px 0"><h3>দৈনিক হাজিরা</h3><form onsubmit="submitManpowerAttendance(event)">
  <label>তারিখ</label><input id="attDate" type="date" value="${today}" required>
@@ -298,33 +308,56 @@ function renderManpowerModule(){
  <div style="margin-top:14px"><button class="primary success" type="submit">SUBMIT হাজিরা</button></div></form></div>
  ${isAdmin?`<div class="topbar"><h3>কর্মচারী তালিকা</h3></div><div id="employeeList"></div>`:""}
  <div class="topbar" style="margin-top:20px"><h3>হাজিরার রেকর্ড</h3><button class="info small-btn" onclick="exportCategoryCSV()">CSV DOWNLOAD</button></div><div id="categoryRecords"></div>`;
+ renderManpowerShiftSummary();
  if(isAdmin)renderEmployeeList();renderCategoryRecords();
+}
+function renderManpowerShiftSummary(){
+ const root=document.getElementById("manpowerShiftSummaryRows");if(!root)return;
+ const employees=getEmployees().filter(e=>e.active!==false),today=localDateISO();
+ const todayRecords=getRecords().filter(r=>r.section===currentSection&&r.category==="Manpower"&&r.date===today);
+ const activeShifts=sectionShifts[currentSection].filter(sh=>employees.some(e=>e.shift===sh));
+ if(!activeShifts.length){root.innerHTML='<div class="empty" style="margin-top:10px">এখনো কোনো শিফটে কর্মী যোগ করা হয়নি।</div>';return;}
+ root.innerHTML=activeShifts.map((shift,index)=>{
+  const total=employees.filter(e=>e.shift===shift).length;
+  const present=todayRecords.filter(r=>(r.shift||"")===shift&&r.status==="উপস্থিত").length;
+  const absent=todayRecords.filter(r=>(r.shift||"")===shift&&r.status==="অনুপস্থিত").length;
+  return `<div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:8px;align-items:center;text-align:center;padding:13px 8px;border-bottom:${index===activeShifts.length-1?'0':'1px solid #e5eaf0'}">
+   <strong style="color:#073b70">${escapeHtml(shift)}</strong><span style="color:#16834a;font-weight:700">${present}</span><span style="color:#c0392b;font-weight:700">${absent}</span><strong>${total}</strong>
+  </div>`;
+ }).join("");
 }
 function saveEmployee(event){
  event.preventDefault();if(currentRole!=="Admin"){alert("শুধু Admin কর্মচারী যোগ করতে পারবেন।");return;}
- const id=document.getElementById("empId").value.trim(),name=document.getElementById("empName").value.trim(),designation=document.getElementById("empDesignation").value.trim(),department=document.getElementById("empDepartment").value.trim(),joiningDate=document.getElementById("empJoiningDate").value;
+ const id=document.getElementById("empId").value.trim(),name=document.getElementById("empName").value.trim(),designation=document.getElementById("empDesignation").value.trim(),department=document.getElementById("empDepartment").value.trim(),joiningDate=document.getElementById("empJoiningDate").value,shift=document.getElementById("empShift").value;
  const list=getEmployees();if(list.some(e=>e.id.toLowerCase()===id.toLowerCase())){alert("এই ID Card আগে থেকেই আছে।");return;}
- list.push({id,name,designation,department,joiningDate,active:true});saveEmployees(list);renderManpowerModule();alert("কর্মচারী সংরক্ষণ হয়েছে।");
+ if(!shift){alert("কর্মচারীর শিফট নির্বাচন করুন।");return;}
+ list.push({id,name,designation,department,joiningDate,shift,active:true});saveEmployees(list);renderManpowerModule();alert("কর্মচারী সংরক্ষণ হয়েছে।");
 }
 function lookupEmployee(){
  const id=document.getElementById("attEmployeeId").value.trim().toLowerCase(),e=getEmployees().find(x=>x.id.toLowerCase()===id&&x.active!==false),box=document.getElementById("employeeInfo");
  if(!id){box.textContent="ID Card লিখলে কর্মচারীর তথ্য এখানে দেখা যাবে।";return;}
  if(!e){box.innerHTML="<strong style='color:#b42318'>এই ID Card-এর কর্মচারী পাওয়া যায়নি।</strong>";return;}
- box.innerHTML=`<strong>নাম:</strong> ${escapeHtml(e.name)}<br><strong>পদবী:</strong> ${escapeHtml(e.designation)}<br><strong>বিভাগ:</strong> ${escapeHtml(e.department)}<br><strong>যোগদানের তারিখ:</strong> ${escapeHtml(e.joiningDate||"—")}`;
+ box.innerHTML=`<strong>নাম:</strong> ${escapeHtml(e.name)}<br><strong>পদবী:</strong> ${escapeHtml(e.designation)}<br><strong>বিভাগ:</strong> ${escapeHtml(e.department)}<br><strong>শিফট:</strong> ${escapeHtml(e.shift||"নির্ধারণ করা হয়নি")}<br><strong>যোগদানের তারিখ:</strong> ${escapeHtml(e.joiningDate||"—")}`;
 }
 function submitManpowerAttendance(event){
  event.preventDefault();const date=document.getElementById("attDate").value,id=document.getElementById("attEmployeeId").value.trim(),status=document.getElementById("attStatus").value;
  const employee=getEmployees().find(e=>e.id.toLowerCase()===id.toLowerCase()&&e.active!==false);
- if(!employee){alert("সঠিক Manpower ID Card লিখুন।");return;}if(!status){alert("হাজিরার অবস্থা নির্বাচন করুন।");return;}
+ if(!employee){alert("সঠিক Manpower ID Card লিখুন।");return;}if(!employee.shift){alert("এই কর্মচারীর শিফট Admin থেকে নির্ধারণ করতে হবে।");return;}if(!status){alert("হাজিরার অবস্থা নির্বাচন করুন।");return;}
  const all=getRecords();if(all.some(r=>r.section===currentSection&&r.category==="Manpower"&&r.date===date&&String(r.employeeId).toLowerCase()===id.toLowerCase())){alert("এই কর্মচারীর এই তারিখের হাজিরা আগে জমা হয়েছে।");return;}
- all.push({id:Date.now().toString(),section:currentSection,category:"Manpower",date,employeeId:employee.id,employee:employee.name,designation:employee.designation,department:employee.department,status,createdAt:new Date().toISOString()});
+ all.push({id:Date.now().toString(),section:currentSection,category:"Manpower",date,employeeId:employee.id,employee:employee.name,designation:employee.designation,department:employee.department,shift:employee.shift,status,createdAt:new Date().toISOString()});
  saveRecords(all);renderManpowerModule();alert("হাজিরা সফলভাবে সংরক্ষণ হয়েছে।");
 }
 function renderEmployeeList(){
  const root=document.getElementById("employeeList");if(!root)return;const list=getEmployees();
  if(!list.length){root.innerHTML='<div class="empty">এখনো কোনো কর্মচারী যোগ করা হয়নি।</div>';return;}
- root.innerHTML='<div class="table-wrap"><table><thead><tr><th>ID Card</th><th>নাম</th><th>পদবী</th><th>বিভাগ</th><th>যোগদানের তারিখ</th><th>অবস্থা</th><th>Action</th></tr></thead><tbody>'+
- list.map(e=>`<tr><td>${escapeHtml(e.id)}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.designation)}</td><td>${escapeHtml(e.department)}</td><td>${escapeHtml(e.joiningDate||"—")}</td><td>${e.active===false?"Inactive":"Active"}</td><td><button class="small-btn danger" onclick="removeEmployee('${escapeHtml(e.id)}')">Delete</button></td></tr>`).join("")+'</tbody></table></div>';
+ root.innerHTML='<div class="table-wrap"><table><thead><tr><th>ID Card</th><th>নাম</th><th>পদবী</th><th>বিভাগ</th><th>শিফট</th><th>যোগদানের তারিখ</th><th>অবস্থা</th><th>Action</th></tr></thead><tbody>'+
+ list.map(e=>`<tr><td>${escapeHtml(e.id)}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.designation)}</td><td>${escapeHtml(e.department)}</td><td><select onchange="saveEmployeeShift('${escapeHtml(e.id)}',this.value)">${shiftOptions(e.shift||"")}</select></td><td>${escapeHtml(e.joiningDate||"—")}</td><td>${e.active===false?"Inactive":"Active"}</td><td><button class="small-btn danger" onclick="removeEmployee('${escapeHtml(e.id)}')">Delete</button></td></tr>`).join("")+'</tbody></table></div>';
+}
+function saveEmployeeShift(id,shift){
+ if(currentRole!=="Admin"){alert("শুধু Admin শিফট পরিবর্তন করতে পারবেন।");return;}
+ if(!sectionShifts[currentSection].includes(shift)){alert("সঠিক শিফট নির্বাচন করুন।");renderEmployeeList();return;}
+ const list=getEmployees(),employee=list.find(e=>e.id===id);if(!employee)return;
+ employee.shift=shift;saveEmployees(list);renderManpowerModule();
 }
 function removeEmployee(id){
  if(currentRole!=="Admin"){alert("শুধু Admin কর্মচারী মুছতে পারবেন।");return;}
@@ -334,31 +367,34 @@ function removeEmployee(id){
 
 function renderCategoryRecords(){
  const root=document.getElementById("categoryRecords");if(!root)return;
- const records=getRecords().filter(r=>r.section===currentSection&&r.category===currentCategory).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- if(!records.length){root.innerHTML='<div class="empty">এখনো কোনো হিসাব যোগ করা হয়নি।</div>';return;}
+ const allRecords=getRecords().filter(r=>r.section===currentSection&&r.category===currentCategory).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ if(!allRecords.length){root.innerHTML='<div class="empty">এখনো কোনো হিসাব যোগ করা হয়নি।</div>';return;}
  if(currentCategory==="Manpower"){
-  const employees=getEmployees(),groups={};
-  records.forEach(r=>(groups[r.date]??=[]).push(r));
-  const dates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-  root.innerHTML=dates.map(date=>{
-   const list=groups[date],present=list.filter(r=>r.status==="উপস্থিত").length,absent=list.filter(r=>r.status==="অনুপস্থিত").length;
+  const dates=[...new Set(allRecords.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));
+  const shifts=[...new Set([...(sectionShifts[currentSection]||[]),...allRecords.map(r=>r.shift||"শিফট নির্ধারণ হয়নি")])];
+  const dateValue=document.getElementById("manpowerFilterDate")?.value||"all";
+  const statusValue=document.getElementById("manpowerFilterStatus")?.value||"all";
+  const shiftValue=document.getElementById("manpowerFilterShift")?.value||"all";
+  const records=allRecords.filter(r=>(dateValue==="all"||r.date===dateValue)&&(statusValue==="all"||r.status===statusValue)&&(shiftValue==="all"||(r.shift||"শিফট নির্ধারণ হয়নি")===shiftValue));
+  const dateOptions='<option value="all">সকল তারিখ</option>'+dates.map(d=>`<option value="${escapeHtml(d)}" ${dateValue===d?'selected':''}>${new Date(d+"T00:00:00").toLocaleDateString("bn-BD")}</option>`).join("");
+  const statusOptions=['উপস্থিত','অনুপস্থিত','ছুটি','ওভারটাইম'].map(v=>`<option value="${v}" ${statusValue===v?'selected':''}>${v}</option>`).join("");
+  const shiftOptionsHtml=shifts.map(v=>`<option value="${escapeHtml(v)}" ${shiftValue===v?'selected':''}>${escapeHtml(v)}</option>`).join("");
+  const grouped={};records.forEach(r=>(grouped[r.date]??=[]).push(r));
+  const tableHtml=Object.keys(grouped).sort((a,b)=>b.localeCompare(a)).map(date=>{
    const dayLabel=new Date(date+"T00:00:00").toLocaleDateString("bn-BD",{day:"numeric",month:"long",year:"numeric",weekday:"long"});
-   return `<div class="card" style="margin:18px 0 30px;padding:14px;border:1px solid #d5dce5;border-radius:10px">
+   const list=grouped[date].slice().sort((a,b)=>String(a.employee).localeCompare(String(b.employee),"bn"));
+   return `<div class="card" style="margin:12px 0;padding:12px;border:1px solid #d5dce5;border-radius:9px">
     <h3 style="margin:0 0 12px;color:#174a7e;border-bottom:2px solid #e5eaf0;padding-bottom:10px">📅 ${escapeHtml(dayLabel)}</h3>
-    <div class="summary-grid" style="margin:10px 0 14px">
-     <div class="summary">মোট কর্মী<strong>${employees.length}</strong></div>
-     <div class="summary">উপস্থিত<strong>${present}</strong></div>
-     <div class="summary">অনুপস্থিত<strong>${absent}</strong></div>
-    </div>
-    <div class="table-wrap"><table><thead><tr><th>আইডি নাম্বার</th><th>নাম</th><th>পদবী</th><th>বিভাগ</th><th>অবস্থা</th>${currentRole==="Admin"?"<th>Action</th>":""}</tr></thead><tbody>
-    ${list.slice().sort((a,b)=>String(a.employee).localeCompare(String(b.employee),"bn")).map(r=>`<tr><td>${escapeHtml(r.employeeId)}</td><td>${escapeHtml(r.employee)}</td><td>${escapeHtml(r.designation)}</td><td>${escapeHtml(r.department)}</td><td>${escapeHtml(r.status)}</td>${currentRole==="Admin"?`<td><button class="small-btn danger" onclick="deleteCategoryRecord('${r.id}')">Delete</button></td>`:""}</tr>`).join("")}
+    <div class="table-wrap"><table><thead><tr><th>আইডি নাম্বার</th><th>নাম</th><th>পদবী</th><th>বিভাগ</th><th>শিফট</th><th>অবস্থা</th>${currentRole==="Admin"?"<th>Action</th>":""}</tr></thead><tbody>
+    ${list.map(r=>`<tr><td>${escapeHtml(r.employeeId)}</td><td>${escapeHtml(r.employee)}</td><td>${escapeHtml(r.designation)}</td><td>${escapeHtml(r.department)}</td><td>${escapeHtml(r.shift||"শিফট নির্ধারণ হয়নি")}</td><td>${escapeHtml(r.status)}</td>${currentRole==="Admin"?`<td><button class="small-btn danger" onclick="deleteCategoryRecord('${r.id}')">Delete</button></td>`:""}</tr>`).join("")}
     </tbody></table></div></div>`;
   }).join("");
+  root.innerHTML=`<div class="card" style="margin:12px 0;padding:12px"><h4 style="margin:0 0 10px">ফিল্টার</h4><div class="form-grid"><div><label>তারিখ</label><select id="manpowerFilterDate" onchange="renderCategoryRecords()">${dateOptions}</select></div><div><label>হাজিরার অবস্থা</label><select id="manpowerFilterStatus" onchange="renderCategoryRecords()"><option value="all">সব অবস্থা</option>${statusOptions}</select></div><div><label>শিফট</label><select id="manpowerFilterShift" onchange="renderCategoryRecords()"><option value="all">সব শিফট</option>${shiftOptionsHtml}</select></div></div></div>${tableHtml||'<div class="empty">এই ফিল্টারে কোনো রেকর্ড পাওয়া যায়নি।</div>'}`;
   return;
  }
- const fields=Object.keys(records[0]).filter(k=>!["id","section","category","createdAt"].includes(k));
+ const fields=Object.keys(allRecords[0]).filter(k=>!["id","section","category","createdAt"].includes(k));
  let html='<div class="table-wrap"><table><thead><tr>'+fields.map(k=>`<th>${fieldLabel(k)}</th>`).join("")+'<th>Action</th></tr></thead><tbody>';
- records.forEach(r=>{html+="<tr>"+fields.map(k=>`<td>${escapeHtml(r[k]??"")}</td>`).join("")+`<td>${currentRole==="Admin"?`<button class="small-btn danger" onclick="deleteCategoryRecord('${r.id}')">Delete</button>`:"—"}</td></tr>`;});
+ allRecords.forEach(r=>{html+="<tr>"+fields.map(k=>`<td>${escapeHtml(r[k]??"")}</td>`).join("")+`<td>${currentRole==="Admin"?`<button class="small-btn danger" onclick="deleteCategoryRecord('${r.id}')">Delete</button>`:"—"}</td></tr>`;});
  root.innerHTML=html+"</tbody></table></div>";
 }
 function fieldLabel(k){return({date:"তারিখ",employee:"নাম",employeeId:"ID Card",designation:"পদবী",status:"হাজিরার অবস্থা",department:"বিভাগ",present:"উপস্থিত",absent:"অনুপস্থিত",leave:"ছুটি",overtime:"ওভারটাইম",machine:"মেশিন",item:"আইটেম",target:"টার্গেট",quantity:"পরিমাণ / উৎপাদন",unit:"একক",shift:"শিফট",problem:"সমস্যা",parts:"পার্টস",cost:"খরচ",status:"অবস্থা",technician:"টেকনিশিয়ান",remarks:"মন্তব্য",achievement:"টার্গেট থেকে পার্থক্য"})[k]||k;}
